@@ -10,7 +10,7 @@ server <- function(input, output, session) {
   
   map <- leaflet() %>%
     addTiles(options = tileOptions(zIndex = -1000)) %>%
-    fitBounds(-84.540089, 33.643822, -84.172734, 33.871885) 
+    fitBounds(-84.540089, 33.643822, -84.172734, 33.871885)
   output$map <- renderLeaflet(map)
   
   observeEvent(input$update_bus_locations_button, {
