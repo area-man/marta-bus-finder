@@ -17,7 +17,6 @@ server <- function(input, output, session) {
     
     route_id <- input$route_select
     marta_bus_route_url_string <- paste0(marta_bus_route_url, route_id)
-    print(marta_bus_route_url_string)
     transit_records <- jsonlite:::fromJSON(marta_bus_route_url_string, flatten=TRUE)
     print(transit_records)
     leafletProxy("map") %>% removeMarker("bus_marker")

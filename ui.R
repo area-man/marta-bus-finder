@@ -12,10 +12,7 @@ ui <- bootstrapPage(
       width:100%;
       height:100%
     }
-    .leaflet-marker-icon {
-      fill: #FFFF00;
-    }
-  /* .leaflet-label-right:after, .leaflet-label-right:before, .leaflet-label-left:after, .leaflet-label-left:before { display:none }"),
+    /* .leaflet-label-right:after, .leaflet-label-right:before, .leaflet-label-left:after, .leaflet-label-left:before { display:none }"),
   leafletOutput("map", width = "100%", height = "100%"),
   absolutePanel(
     top = 10,
