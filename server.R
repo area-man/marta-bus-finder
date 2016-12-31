@@ -3,10 +3,10 @@ library(leaflet)
 library(jsonlite)
 
 marta_bus_url <- "http://developer.itsmarta.com/BRDRestService/BRDRestService.svc/GetAllBus"
-marta_bus_route_url <- "http://developer.itsmarta.com/BRDRestService/RestBusRealTimeService/GetBusByRoute/"
-# api key needed for marta rail json service # http://www.itsmarta.com/app-developer-resources.aspx
+marta_bus_route_url <- "http://developer.itsmarta.com/BRDRestService/RestBusRealTimeService/GetBusByRoute/" # internet archive copy: # marta_bus_route_url <- "https://web-beta.archive.org/web/20141116024315/http://developer.itsmarta.com/BRDRestService/BRDRestService.svc/GetAllBus"
+# api key needed for rail flavor # http://www.itsmarta.com/app-developer-resources.aspx
 
-shinyServer(function(input, output, session) {
+server <- function(input, output, session) {
   
   map <- leaflet() %>%
     addTiles(options = tileOptions(zIndex = -1000)) %>%
@@ -18,30 +18,35 @@ shinyServer(function(input, output, session) {
     route_id <- input$route_select
     marta_bus_route_url_string <- paste0(marta_bus_route_url, route_id)
     print(marta_bus_route_url_string)
-    transit_records <- fromJSON(marta_bus_route_url_string, flatten=TRUE)
-    print(transit_records$LONGITUDE)
+    transit_records <- jsonlite:::fromJSON(marta_bus_route_url_string, flatten=TRUE)
+    print(transit_records)
+    leafletProxy("map") %>% removeMarker("bus_marker")
+    leafletProxy("map") %>% clearPopups()
+    
     leafletProxy("map") %>%
-      addCircleMarkers(
+      addMarkers(layerId = "bus_marker",
         lng = as.numeric(transit_records$LONGITUDE),
         lat = as.numeric(transit_records$LATITUDE),
-        radius = 0,
-        opacity = 0,
-        weight = 0,
-        color = "#777777",
-        fillColor = "#000000",
-        fillOpacity = 0,
         popup = paste(transit_records$MSGTIME, "<br>", transit_records$DIRECTION),
         label = transit_records$ROUTE,
-        labelOptions = labelOptions(textsize = "12px", noHide = TRUE, offset = c(0,0)))
+        options = markerOptions(zIndexOffset = 1000),
+        labelOptions = labelOptions(textsize = "16px", noHide = TRUE, direction = "auto", zIndexOffset = 1000,
+                                    style = list(
+                                      'color'='#FFFFFF',
+                                      'border-color'='#0099CC',
+                                      'background-color'='#FF6600'
+                                      )))
   })
   
   observeEvent(input$geolocation, {
     print(input$accuracy)
     leafletProxy("map") %>%
-      addCircleMarkers(
+      addMarkers(layerId = "shared_location",
         lng = input$long,
-        lat = input$lat
+        lat = input$lat,
+        icon = list(iconUrl = "https://github.com/Scarygami/poke-icon/raw/master/images/39.png", iconSize = c(35, 35)),
+        options = markerOptions(zIndexOffset = 1000)
       )
   })
   
-})
+}
