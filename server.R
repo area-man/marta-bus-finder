@@ -6,6 +6,9 @@ marta_bus_url <- "http://developer.itsmarta.com/BRDRestService/BRDRestService.sv
 marta_bus_route_url <- "http://developer.itsmarta.com/BRDRestService/RestBusRealTimeService/GetBusByRoute/" # internet archive copy: # marta_bus_route_url <- "https://web-beta.archive.org/web/20141116024315/http://developer.itsmarta.com/BRDRestService/BRDRestService.svc/GetAllBus"
 # api key needed for rail flavor # http://www.itsmarta.com/app-developer-resources.aspx
 
+browser_location_icon <- makeAwesomeIcon(icon = "ion-android-person", library = "ion", markerColor = "orange")
+bus_location_icon <- makeAwesomeIcon(icon = "ion-android-bus", library = "ion")
+
 server <- function(input, output, session) {
   
   map <- leaflet() %>%
@@ -21,11 +24,13 @@ server <- function(input, output, session) {
     print(transit_records)
     leafletProxy("map") %>% removeMarker("bus_marker")
     leafletProxy("map") %>% clearPopups()
+    leafletProxy("map") %>% clearShapes()
     
     leafletProxy("map") %>%
-      addMarkers(layerId = "bus_marker",
+      addAwesomeMarkers(layerId = "bus_marker",
         lng = as.numeric(transit_records$LONGITUDE),
         lat = as.numeric(transit_records$LATITUDE),
+        icon = bus_location_icon,
         popup = paste(transit_records$MSGTIME, "<br>", transit_records$DIRECTION),
         label = transit_records$ROUTE,
         options = markerOptions(zIndexOffset = 1000),
@@ -35,17 +40,32 @@ server <- function(input, output, session) {
                                       'border-color'='#0099CC',
                                       'background-color'='#FF6600'
                                       )))
+    
+    if(!is.null(input$checkbox_show_route)) {
+      add_route_path_to_map(route_id)
+    }
+    
   })
   
   observeEvent(input$geolocation, {
     print(input$accuracy)
     leafletProxy("map") %>%
-      addMarkers(layerId = "shared_location",
+      addAwesomeMarkers(layerId = "browser_location_icon",
         lng = input$long,
         lat = input$lat,
-        icon = list(iconUrl = "https://github.com/Scarygami/poke-icon/raw/master/images/39.png", iconSize = c(35, 35)),
+        icon = browser_location_icon,
         options = markerOptions(zIndexOffset = 1000)
       )
   })
+  
+  
+  add_route_path_to_map <- function(route_identifier) {
+    route_json <- fromJSON(paste0("routes/", route_identifier,".json"))
+    leafletProxy("map") %>%
+      addPolylines(layerId = "route_polyline",
+                   options = pathOptions(clickable = FALSE),
+                   lng = route_json$x,
+                   lat = route_json$y)
+  }
   
 }
