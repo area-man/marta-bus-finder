@@ -2,7 +2,7 @@ library(shiny)
 library(leaflet)
 library(jsonlite)
 
-marta_bus_url <- "http://developer.itsmarta.com/BRDRestService/BRDRestService.svc/GetAllBus"
+# marta_bus_url <- "http://developer.itsmarta.com/BRDRestService/BRDRestService.svc/GetAllBus"
 marta_bus_route_url <- "http://developer.itsmarta.com/BRDRestService/RestBusRealTimeService/GetBusByRoute/" # internet archive copy: # marta_bus_route_url <- "https://web-beta.archive.org/web/20141116024315/http://developer.itsmarta.com/BRDRestService/BRDRestService.svc/GetAllBus"
 # api key needed for rail flavor # http://www.itsmarta.com/app-developer-resources.aspx
 
@@ -20,14 +20,13 @@ server <- function(input, output, session) {
     
     route_id <- input$route_select
     marta_bus_route_url_string <- paste0(marta_bus_route_url, route_id)
-    transit_records <- jsonlite:::fromJSON(marta_bus_route_url_string, flatten=TRUE)
-    print(transit_records)
-    leafletProxy("map") %>% removeMarker("bus_marker")
+    transit_records <- jsonlite:::fromJSON(marta_bus_route_url_string, flatten = TRUE)
+    # print(str(transit_records))
+    leafletProxy("map") %>% clearGroup("bus_marker")
     leafletProxy("map") %>% clearPopups()
     leafletProxy("map") %>% clearShapes()
-    
     leafletProxy("map") %>%
-      addAwesomeMarkers(layerId = "bus_marker",
+      addAwesomeMarkers(group = "bus_marker",
         lng = as.numeric(transit_records$LONGITUDE),
         lat = as.numeric(transit_records$LATITUDE),
         icon = bus_location_icon,
@@ -41,14 +40,20 @@ server <- function(input, output, session) {
                                       'background-color'='#FF6600'
                                       )))
     
-    if(!is.null(input$checkbox_show_route)) {
-      add_route_path_to_map(route_id)
-    }
-    
+      route_points <- read.csv(paste0("routes/", route_id,".csv"))
+      # we should only fit bounds the first time the route is loaded so we don't disturb user's selected bounds
+      leafletProxy("map") %>%
+        fitBounds(min(route_points$longitude), min(route_points$latitude),
+                  max(route_points$longitude), max(route_points$latitude))
+      #
+      leafletProxy("map") %>%
+        addPolylines(lng = route_points$longitude,
+                     lat = route_points$latitude,
+                     options = pathOptions(clickable = FALSE))
+
   })
   
   observeEvent(input$geolocation, {
-    print(input$accuracy)
     leafletProxy("map") %>%
       addAwesomeMarkers(layerId = "browser_location_icon",
         lng = input$long,
@@ -57,15 +62,5 @@ server <- function(input, output, session) {
         options = markerOptions(zIndexOffset = 1000)
       )
   })
-  
-  
-  add_route_path_to_map <- function(route_identifier) {
-    route_json <- fromJSON(paste0("routes/", route_identifier,".json"))
-    leafletProxy("map") %>%
-      addPolylines(layerId = "route_polyline",
-                   options = pathOptions(clickable = FALSE),
-                   lng = route_json$x,
-                   lat = route_json$y)
-  }
-  
+
 }
