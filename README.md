@@ -1,9 +1,9 @@
-#MARTA Bus Finder
+# MARTA Bus Finder
 
-##Demo
+## Demo
 [http://writeandroll.com/apps/marta-bus-finder/](http://writeandroll.com/apps/marta-bus-finder/)
 
-##Info
+## Info
 This is a ["Shiny App"](https://www.rstudio.com/products/shiny/shiny-user-showcase/)
 
 To run the app yourself, you will need R installed. [(Download R for Windows)](https://cran.r-project.org/bin/windows/base/)
