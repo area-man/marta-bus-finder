@@ -32,6 +32,6 @@ ui <- bootstrapPage(
   absolutePanel(
     bottom = 18,
     right = 6,
-    HTML("<a href='https://github.com/area-man/marta-bus-finder'>Code</a>")),
-  includeScript("shiny_geolocation.js")
+    HTML("<a href='https://github.com/area-man/marta-bus-finder'>Code</a>"))
+  #, includeScript("shiny_geolocation.js")
 )
