@@ -1,7 +1,7 @@
 # MARTA Bus Finder
 
 ## Demo
-[http://writeandroll.com/apps/marta-bus-finder/](http://writeandroll.com/apps/marta-bus-finder/)
+[https://writeandroll.com/apps/marta-bus-finder/](http://writeandroll.com/apps/marta-bus-finder/)
 
 ## Info
 This is a ["Shiny App"](https://www.rstudio.com/products/shiny/shiny-user-showcase/)
