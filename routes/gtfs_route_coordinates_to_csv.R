@@ -1,3 +1,4 @@
+# https://www.itsmarta.com/google_transit_feed/google_transit.zip
 shapes <- read.csv("google_transit/shapes.txt", stringsAsFactors = FALSE)
 routes <- read.csv("google_transit/routes.txt", stringsAsFactors = FALSE)
 trips <- read.csv("google_transit/trips.txt", stringsAsFactors = FALSE)
